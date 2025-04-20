@@ -1,3 +1,3 @@
 # evorobotics
-Evolutionary Computation Algorithms \n
-Archive of my work with Prof. Mwaura
+Evolutionary Computation Algorithms,
+archive of my learning progression
