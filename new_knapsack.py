@@ -2,6 +2,7 @@ import random
 import copy
 import statistics
 import matplotlib.pyplot as plt
+import csv
 
 global knapsack_weight
 global knapsack_values
@@ -63,7 +64,7 @@ def parentselection_tournament(population_values, parameter_parentsamplesize): #
 	return best_candidate #returns the index of the best candidate in population_values / population
 
 def mutation_allindex(individual): #selects all indexes, might change each one
-	parameter_allindex_random_mutation_rate = 22 #5% mutation rate / gene #the higher this goes up the higher the success rate
+	parameter_allindex_random_mutation_rate = 5 #5% mutation rate / gene #the higher this goes up the higher the success rate
 	i = 0
 	for item in individual:
 		#print(i)
@@ -160,15 +161,18 @@ def graph(listX, listY, nameX, nameY, title):
 	print("graphed")
 
 def main():
-	cases_count = 50
-	evolutionary_cycle_count = 35 #550 for steady state
+	cases_count = 10
+	evolutionary_cycle_count = 35 #1575 for steady state #35 for generational
 
-	parameter_populationsize = 100
+	parameter_populationsize = 50
 	parameter_tournamentsize = 20
-	parameter_elitism_size = 10
+	parameter_elitism_size = 10 #10
 
 	highest_end_value = []
 	percent_count = 0
+
+	#data = [["cycle number", "best organism value", "average organism value"]]
+	data = []
 
 	GA_mode = 1 #0 for steady state, 1 for generational
 
@@ -218,6 +222,7 @@ def main():
 				population_values[lowest_individual_index] = offspring2[1]
 				population[lowest_individual_index] = offspring2
 
+
 				#else: the two parents are the offspring without crossover. mutate(?) them. then replaced. restructure ~140-on
 
 				#print("end cycle population values:", population_values)
@@ -248,6 +253,19 @@ def main():
 					new_population.append(offspring2)
 				population = new_population
 
+				highest_organism_index, _ = max(enumerate(population), key=lambda x: x[1][1])
+				highest_organism = population[highest_organism_index]
+				all_organism_values = [item[1] for item in population] 
+				all_organism_values_average = sum(all_organism_values) / len(all_organism_values) 
+				data.append([j,highest_organism[1],all_organism_values_average])
+				csvfilename="data\case"+str(i)+".csv"
+				with open(csvfilename,'w',newline='') as csvfile:
+					writer = csv.writer(csvfile)
+					writer.writerows(data)
+			data = []
+			#data = [["cycle number", "best organism value", "average organism value"]]
+
+
 		#cycle is over, determine:
 		#highest_organism_value = max(population_values)
 		#highest_organism_index = population_values.index(highest_organism_value)
@@ -267,6 +285,7 @@ def main():
 	x_axis_trials = []
 	for i in range(cases_count):
 		x_axis_trials.append(i)
+	print(data)
 	graph(x_axis_trials, highest_end_value, "Trail #", "End result", "End result vs Trial number")
 
 def notmain(): #test, ignore this function
@@ -278,3 +297,25 @@ def notmain(): #test, ignore this function
 
 if __name__ == "__main__":
 	main()
+
+#6/9 implement more problems
+#hyperparemeters - parameters for tweaking GA. set beforehand, dictates how algo runs
+#model paramters - parameters to be optimized by a model. for example: neural network, weights. need algorithm to find for you
+
+#selection pressure too high - more likely to fall into local optima
+#maybe lower selection pressure?
+
+#what is the role of selection pressure in ga - read
+#try out 5 - 10 - 15 - 20---> 50 -> tournament size
+#keep everything else constant
+
+#mutation rate: 5 - 10 - 15 - 20 -> try
+
+#graph. fitness on y, generation on x. 
+
+# https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_01/knapsack_01.html 
+
+#1. test other knapsack problems
+#2. implement graph function or write data to csv. generation vs best organism, generation vs average organism
+#3. run three trials of each combination
+#4. track the success rate
